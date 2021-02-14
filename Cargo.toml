@@ -1,0 +1,12 @@
+[package]
+name = "evalrs"
+version = "0.1.0"
+authors = ["Serhii Zavadskyi <sz@3yourmind.com>"]
+edition = "2018"
+
+[dependencies]
+rocket = "0.4.7"
+rocket_contrib = "0.4.7"
+serde_json = "1.0.62"
+serde = "1.0.123"
+js-sandbox = "0.1.5"
