@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["Serhii Zavadskyi <sz@3yourmind.com>"]
 edition = "2018"
 
+[profile.release]
+lto = true
+debug = false
+opt-level = "s"
+
 [dependencies]
 rocket = "0.4.7"
 rocket_contrib = "0.4.7"
