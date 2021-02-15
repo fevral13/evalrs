@@ -47,7 +47,9 @@ fn index() -> &'static str {
 fn eval(data: Data, _key_cache: State<KeyCache>) -> JsonValue {
 
     let maybe_json: Result<PricingPayload, Error> 
-        = serde_json::de::from_reader(data.open());
+        = serde_json::de::from_reader(
+            data.open()
+        );
 
     let response: ResultResponse = match maybe_json {
         Ok(data)=> {
@@ -92,7 +94,10 @@ fn eval(data: Data, _key_cache: State<KeyCache>) -> JsonValue {
 }
 
 fn main() {
-    #[cfg(feature="static")]
+    //#[cfg(feature="static")]
+    // uncomment above & build against 
+    // musl lib for maximum static links
+    
     rocket::ignite()
         .mount("/", rocket::routes![index, eval])
         .manage(KeyCache::new())
