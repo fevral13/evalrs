@@ -1,114 +1,60 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 mod components;
-use crate::components::{
-    payloads::PricingPayload,
-    validate::ecma_script,
-};
+
+use crate::components::payloads::PricingPayload;
 
 use std::collections::HashMap;
-use js_sandbox::{
-    Script, 
-    AnyError
-};
-use serde::{Serialize};
-use serde_json::{
-    json,
-    Value,
-    error::Error as SerdeError,
-};
-use rocket::{
-    State,
-    Data,
-    Rocket,
-};
+
+use js_sandbox::Script;
+use serde::Serialize;
+
+use rocket::{Data, Rocket, State};
+use serde_json::{json, Value};
+
 use rocket;
-use rocket_contrib::json::{JsonValue};
-
-use std::{
-    error::Error,
-    fmt,
-};
-
-
-#[derive(Debug, Clone)]
-pub struct ExecutionError;
-
-impl fmt::Display for ExecutionError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "could not execute this script!")
-    }
-}
-
-impl Error for ExecutionError {}
-
-
-#[derive(Serialize, Debug)]
-enum CalcResult {
-    Result(Value),
-    //ExecutionError(String),
-}
+use rocket_contrib::json::JsonValue;
+use std::error::Error;
 
 #[derive(Serialize, Debug)]
 struct ResultResponse<'a> {
     status: &'a str,
-    result: CalcResult,
+    result: Value,
+    message: Value,
 }
 
 type KeyCache = HashMap<String, String>;
-
 
 #[rocket::get("/")]
 fn index() -> &'static str {
     "Hello, world!"
 }
 
-fn execute_script(script: js_sandbox::Script, variables: serde_json::Value) -> Result<CalcResult, ExecutionError> {
-    let pricing_result: Result<Value, AnyError> 
-        = script.call("wrapper", &variables);
+fn calc(data: Data) -> Result<Value, Box<dyn Error>> {
+    let json: PricingPayload = serde_json::de::from_reader(data.open())?;
 
-    match pricing_result {
-        Ok(price) => { 
-            Ok(CalcResult::Result(price))
-        },
-        Err(error) => {
-            Err(error.to_string())
-        },
-    }
+    let raw_code = &json.script;
+    let code = format!(
+        r#"wrapper = (variables) => {{ {raw_code} }}"#,
+        raw_code = raw_code
+    );
+
+    let mut script = Script::from_string(&code)?;
+    let result = script.call("wrapper", &json.variables)?;
+    Ok(result)
 }
-
 
 #[rocket::post("/", data = "<data>")]
 fn eval(data: Data, _key_cache: State<KeyCache>) -> JsonValue {
-
-    let maybe_json: Result<PricingPayload, SerdeError> 
-        = serde_json::de::from_reader(
-            data.open()
-        );
-
-    let response: ResultResponse = match maybe_json {
-        Ok(data)=> {
-            let raw_code = &data.script;
-            let code = format!(r#"wrapper = (variables) => {{ {raw_code} }}"#,
-                               raw_code = raw_code
-            );
-
-            println!("code:\n{}", code);
-
-            match Script::from_string(&code) {
-                Err(error) => ResultResponse { 
-                    status: "error", 
-                    result: CalcResult::Error(error.to_string()) 
-                },
-                Ok(mut script) => {
-                    execute_script(script, data.variables)
-                }
-            }
+    let response = match calc(data) {
+        Ok(price) => ResultResponse {
+            status: "ok",
+            result: price,
+            message: Value::Null,
         },
-        Err(err)=> {
-            ResultResponse { 
-                status: "error", 
-                result: CalcResult::Error(err.to_string()) 
-            }
+        Err(error) => ResultResponse {
+            status: "error",
+            result: Value::Null,
+            message: Value::String(error.to_string()),
         },
     };
 
@@ -123,9 +69,9 @@ fn build_rocket() -> Rocket {
 
 fn main() {
     //#[cfg(feature="static")]
-    // uncomment above & build against 
+    // uncomment above & build against
     // musl lib for maximum static links
-    build_rocket() 
+    build_rocket()
         .launch();
 }
 
@@ -134,7 +80,7 @@ mod test {
     use super::build_rocket;
     use rocket::local::Client;
     use rocket::http::{
-        ContentType, 
+        ContentType,
         Status
     };
 
@@ -146,11 +92,11 @@ mod test {
         let mut response = client.get("/").dispatch();
 
         assert_eq!(
-            response.status(), 
+            response.status(),
             Status::Ok
         );
         assert_eq!(
-            response.body_string(), 
+            response.body_string(),
             Some("Hello, world!".into())
         );
     }
@@ -171,11 +117,11 @@ mod test {
             .dispatch();
 
         assert_eq!(
-            response.status(), 
+            response.status(),
             Status::Ok
         );
         assert_eq!(
-            response.body_string(), 
+            response.body_string(),
             Some(r#"{"status":"ok","result":{"Result":4}}"#.to_string())
         );
     }
@@ -196,11 +142,11 @@ mod test {
             .dispatch();
 
         assert_eq!(
-            response.body_string(), 
+            response.body_string(),
             Some(r#"{"status":"ok","result":{"Result":6}}"#.to_string())
         );
         assert_eq!(
-            response.status(), 
+            response.status(),
             Status::Ok
         );
     }
@@ -221,13 +167,12 @@ mod test {
             .dispatch();
 
         assert_eq!(
-            response.body_string(), 
+            response.body_string(),
             Some(r#"{"status":"error","result":{"Error":"ReferenceError: euklid is not defined\n    at wrapper (sandboxed.js:1:109)\n    at sandboxed.js:2:24"}}"#.to_string())
         );
         assert_eq!(
-            response.status(), 
+            response.status(),
             Status::BadRequest
         );
     }
 }
-
