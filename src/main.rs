@@ -109,7 +109,7 @@ mod test {
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(
             response.body_string(),
-            Some(r#"{"status":"ok","result":{"Result":2}}"#.to_string())
+            Some(r#"{"status":"ok","result":2,"message":null}"#.to_string())
         );
     }
 }
