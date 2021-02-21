@@ -1,92 +1,60 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 mod components;
 
-use crate::components::payloads::{PricingPayload};
+use crate::components::payloads::PricingPayload;
 
 use std::collections::HashMap;
 
-use js_sandbox::{Script, AnyError};
-use serde::{Serialize};
+use js_sandbox::Script;
+use serde::Serialize;
 
-use serde_json::{
-    json,
-    Value,
-    error::Error,
-};
-
-use rocket::{
-    State,
-    Data,
-};
+use anyhow;
+use rocket::{Data, State};
+use serde_json::{json, Value};
 
 use rocket;
-use rocket_contrib::json::{JsonValue};
-
-
-#[derive(Serialize, Debug)]
-enum CalcResult {
-    Result(Value),
-    Error(String),
-}
+use rocket_contrib::json::JsonValue;
 
 #[derive(Serialize, Debug)]
 struct ResultResponse<'a> {
     status: &'a str,
-    result: CalcResult,
+    result: Value,
+    message: Value,
 }
 
 type KeyCache = HashMap<String, String>;
-
 
 #[rocket::get("/")]
 fn index() -> &'static str {
     "Hello, world!"
 }
 
+fn calc(data: Data) -> anyhow::Result<Value> {
+    let json: PricingPayload = serde_json::de::from_reader(data.open())?;
+
+    let raw_code = &json.script;
+    let code = format!(
+        r#"wrapper = (variables) => {{ {raw_code} }}"#,
+        raw_code = raw_code
+    );
+
+    let mut script = Script::from_string(&code)?;
+    let result = script.call("wrapper", &json.variables)?;
+    Ok(result)
+}
+
 #[rocket::post("/", data = "<data>")]
 fn eval(data: Data, _key_cache: State<KeyCache>) -> JsonValue {
-
-    let maybe_json: Result<PricingPayload, Error> 
-        = serde_json::de::from_reader(
-            data.open()
-        );
-
-    let response: ResultResponse = match maybe_json {
-        Ok(data)=> {
-            let raw_code = &data.script;
-            let code = format!(r#"wrapper = (variables) => {{
-                   {raw_code}
-                }}"#,
-                               raw_code = raw_code
-            );
-
-            match Script::from_string(&code) {
-                Err(error) => ResultResponse { 
-                    status: "error", 
-                    result: CalcResult::Error(error.to_string()) 
-                },
-                Ok(mut script) => {
-                    let pricing_result: Result<Value, AnyError> 
-                        = script.call("wrapper", &data.variables);
-
-                    match pricing_result {
-                        Ok(price) => ResultResponse { 
-                            status: "ok", 
-                            result: CalcResult::Result(price) 
-                        },
-                        Err(error) => ResultResponse { 
-                            status: "error", 
-                            result: CalcResult::Error(error.to_string()) 
-                        },
-                    }
-                }
-            }
+    let response = match calc(data) {
+        Ok(price) => ResultResponse {
+            status: "ok",
+            result: price,
+            message: Value::Null,
         },
-        Err(err)=> {
-            ResultResponse { 
-                status: "error", 
-                result: CalcResult::Error(err.to_string()) 
-            }
+        Err(error) => ResultResponse {
+            status: "error",
+            result: Value::Null,
+            message: Value::String(error.to_string()),
         },
     };
 
@@ -95,9 +63,9 @@ fn eval(data: Data, _key_cache: State<KeyCache>) -> JsonValue {
 
 fn main() {
     //#[cfg(feature="static")]
-    // uncomment above & build against 
+    // uncomment above & build against
     // musl lib for maximum static links
-    
+
     rocket::ignite()
         .mount("/", rocket::routes![index, eval])
         .manage(KeyCache::new())
