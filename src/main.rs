@@ -35,15 +35,7 @@ struct ResultResponse<'a> {
     result: Value,
     message: Value,
 }
-//
-// #[derive(Debug, rocket::Responder)]
-// pub enum EvalRsResponse<'a> {
-//     //Template(Template),
-//     BadRequest(BadRequest<ResultResponse<'a>>),
-// }
 
-
-//
 #[derive(Debug)]
 pub struct ApiResponse {
     pub result: JsonValue,
@@ -88,22 +80,6 @@ fn process(pricing: &PricingPayload) {
 
 #[rocket::post("/", data = "<data>")]
 fn eval(data: Result<PricingPayload, JsonValue>, _key_cache: State<KeyCache>) -> ApiResponse {
-    // let response = match calc(data) {
-    //     Ok(price) => ResultResponse {
-    //         status: "ok",
-    //         result: price,
-    //         message: Value::Null,
-    //     },
-    //     Err(error) => ResultResponse {
-    //         status: "error",
-    //         result: Value::Null,
-    //         message: Value::String(error.to_string()),
-    //     },
-    // };
-    //
-    // //JsonValue(json!(response));
-    // EvalRsResponse::BadRequest(BadRequest(Some(response)))
-
     match data {
         Ok(pricing) => {
             process(&pricing);
