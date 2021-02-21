@@ -253,7 +253,6 @@ dependencies = [
 name = "evalrs"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "js-sandbox",
  "rocket",
  "rocket_contrib",

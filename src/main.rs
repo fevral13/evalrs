@@ -8,12 +8,12 @@ use std::collections::HashMap;
 use js_sandbox::Script;
 use serde::Serialize;
 
-use anyhow;
 use rocket::{Data, State};
 use serde_json::{json, Value};
 
 use rocket;
 use rocket_contrib::json::JsonValue;
+use std::error::Error;
 
 #[derive(Serialize, Debug)]
 struct ResultResponse<'a> {
@@ -29,7 +29,7 @@ fn index() -> &'static str {
     "Hello, world!"
 }
 
-fn calc(data: Data) -> anyhow::Result<Value> {
+fn calc(data: Data) -> Result<Value, Box<dyn Error>> {
     let json: PricingPayload = serde_json::de::from_reader(data.open())?;
 
     let raw_code = &json.script;
