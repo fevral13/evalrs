@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use js_sandbox::Script;
 use serde::Serialize;
 
-use rocket::{Data, State};
+use rocket::{Data, Rocket, State};
 use serde_json::{json, Value};
 
 use rocket;
@@ -61,13 +61,55 @@ fn eval(data: Data, _key_cache: State<KeyCache>) -> JsonValue {
     JsonValue(json!(response))
 }
 
+fn build_rocket() -> Rocket {
+    rocket::ignite()
+        .mount("/", rocket::routes![index, eval])
+        .manage(KeyCache::new())
+}
+
 fn main() {
     //#[cfg(feature="static")]
     // uncomment above & build against
     // musl lib for maximum static links
+    build_rocket().launch();
+}
 
-    rocket::ignite()
-        .mount("/", rocket::routes![index, eval])
-        .manage(KeyCache::new())
-        .launch();
+#[cfg(test)]
+mod test {
+    use super::build_rocket;
+    use rocket::http::{ContentType, Status};
+    use rocket::local::Client;
+
+    #[test]
+    fn hello_world_on_get() {
+        let client = Client::new(build_rocket()).expect("valid rocket instance");
+
+        let mut response = client.get("/").dispatch();
+
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(response.body_string(), Some("Hello, world!".into()));
+    }
+
+    #[test]
+    fn eval_payload_on_post() {
+        let client = Client::new(build_rocket()).expect("valid rocket instance");
+
+        let mut response = client
+            .post("/")
+            .body(
+                r#"{
+                "variables":{"A":2,"B":2},
+                "script":"return 2;",
+                "key":"59bcc3ad6775562f845953cf01624225"
+            }"#,
+            )
+            .header(ContentType::JSON)
+            .dispatch();
+
+        assert_eq!(response.status(), Status::Ok);
+        assert_eq!(
+            response.body_string(),
+            Some(r#"{"status":"ok","result":2,"message":null}"#.to_string())
+        );
+    }
 }
