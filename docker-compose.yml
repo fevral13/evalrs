@@ -1,0 +1,7 @@
+version: '3'
+services:
+  evalrs:
+    image: evalrs:0.1.0
+    build: .
+    ports:
+      - "8000:8000"
