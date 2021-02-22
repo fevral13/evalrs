@@ -1,11 +1,11 @@
 #![feature(proc_macro_hygiene, decl_macro, in_band_lifetimes)]
 
-#[cfg(test)] mod tests;
+#[cfg(test)]
+mod tests;
 
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
-
 
 mod components;
 
@@ -17,17 +17,13 @@ use js_sandbox::Script;
 use serde::Serialize;
 
 use anyhow;
-use rocket::{State};
+use rocket::State;
 use serde_json::{json, Value};
 
-
-
 use rocket::http::{ContentType, Status};
-use rocket::request::{Request};
+use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
-use rocket_contrib::json::{JsonValue};
-
-
+use rocket_contrib::json::JsonValue;
 
 #[derive(Serialize, Debug)]
 struct ResultResponse<'a> {
@@ -51,7 +47,6 @@ impl<'r> Responder<'r> for ApiResponse {
     }
 }
 
-
 type KeyCache = HashMap<String, String>;
 
 #[rocket::get("/")]
@@ -74,8 +69,7 @@ fn calc(pricing: PricingPayload) -> anyhow::Result<Value> {
 }
 
 fn process(pricing: &PricingPayload) {
-    print!("{:?}", pricing );
-
+    print!("{:?}", pricing);
 }
 
 #[rocket::post("/", data = "<data>")]
@@ -86,13 +80,13 @@ fn eval(data: Result<PricingPayload, JsonValue>, _key_cache: State<KeyCache>) ->
             let result = calc(pricing);
             ApiResponse {
                 result: JsonValue(json!({ "result": result.unwrap() })),
-                status: Status::Ok
-                }
-        },
+                status: Status::Ok,
+            }
+        }
         Err(json_error) => ApiResponse {
             result: json_error,
-            status: Status::BadRequest
-        }
+            status: Status::BadRequest,
+        },
     }
 }
 
@@ -106,6 +100,5 @@ fn main() {
     //#[cfg(feature="static")]
     // uncomment above & build against
     // musl lib for maximum static links
-    build_rocket()
-        .launch();
+    build_rocket().launch();
 }
