@@ -1,12 +1,18 @@
-use serde::{Deserialize};
-use serde_json::{Value};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
-use rocket::{Request, Data, Outcome::*};
 use rocket::data::{self, FromDataSimple};
-use rocket::http::{Status};
+use rocket::{Data, Outcome::*, Request};
 
+use rocket::http::Status;
+use rocket_contrib::json::JsonValue;
 
-#[derive(Deserialize)]
+pub enum EvalError {
+    MalformedBody(String),
+    ExectionFailure(String),
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct PricingPayload {
     pub script: String,
     pub variables: Value,
@@ -14,19 +20,15 @@ pub struct PricingPayload {
 }
 
 impl FromDataSimple for PricingPayload {
-    type Error = String;
+    type Error = JsonValue;
 
-    fn from_data(_req: &Request, data: Data) -> data::Outcome<Self, String> {
-        match serde_json::de::from_reader(data.open()){
-            Ok(payload) => {
-                Success(payload)
-            },
-            Err(e) => {
-                Failure(
-                    (Status::InternalServerError, e.to_string()) 
-                )
-            },
-
+    fn from_data(_req: &Request, data: Data) -> data::Outcome<Self, Self::Error> {
+        match serde_json::de::from_reader(data.open()) {
+            Ok(payload) => Success(payload),
+            Err(e) => Failure((
+                Status::BadRequest,
+                json!({ "error": format!("{}", e.to_string()) }),
+            )),
         }
     }
 }
