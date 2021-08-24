@@ -4,4 +4,6 @@ services:
     image: evalrs:0.1.0
     build: .
     ports:
-      - "8000:8000"
+      - "9001:9001"
+    environment:
+      RUST_LOG: debug

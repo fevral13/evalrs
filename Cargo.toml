@@ -4,18 +4,16 @@ version = "0.1.0"
 authors = ["Serhii Zavadskyi <sz@3yourmind.com>"]
 edition = "2018"
 
-[profile.release]
-lto = true
-debug = false
-opt-level = "s"
-
 [dependencies]
-rocket = "0.4.7"
-rocket_contrib = "0.4.7"
-serde_json = "1.0.62"
-serde = "1.0.123"
-js-sandbox = "0.1.5"
-anyhow = "1.0.38"
+actix-web = "4.0.0-beta.8"
+config = { version = "0.10.0", features = ["yaml"] }
+env_logger = "0.9.0"
+js-sandbox = { git = "https://github.com/Bromeon/js-sandbox", version = "^0.1", branch = "master" }
+lru = "0.6.6"
+serde = { version = "1.0.127", features = ["derive"] }
+serde_json = "1.0.66"
+thiserror = "1.0.26"
 
-[dev-dependencies]
-# none yet
+[dependencies.tera]
+version = "1.12.1"
+default-features = false
