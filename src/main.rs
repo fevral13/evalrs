@@ -1,18 +1,18 @@
-use actix_web::{App, HttpServer, middleware::Logger, web::Data};
-
-use crate::app_state::AppState;
-use crate::settings::Settings;
-
+mod app_state;
+mod cache_backend;
 mod errors;
 mod evaluator;
 mod handlers;
 mod js_prelude;
 mod request;
 mod response;
-mod templates;
-mod app_state;
-mod cache_backend;
 mod settings;
+mod templates;
+
+use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+
+use crate::app_state::AppState;
+use crate::settings::Settings;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -24,12 +24,15 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data( _app_state.clone())
+            .app_data(_app_state.clone())
             .wrap(Logger::default())
             .service(crate::handlers::evaluate_script)
             .service(crate::handlers::index)
     })
-    .bind(format!("{}:{}", &app_state.settings.server.host, &app_state.settings.server.port))?
+    .bind(format!(
+        "{}:{}",
+        &app_state.settings.server.host, &app_state.settings.server.port
+    ))?
     .run()
     .await
 }
