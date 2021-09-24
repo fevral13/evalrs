@@ -12,9 +12,9 @@ pub enum EvalrsError {
     #[error("Error evaluating script")]
     ScriptEvaluationError { source: AnyError },
 
-    #[error("Script not cached and no key submitted")]
-    NoKeyNorScriptSubmitted,
+    #[error("Script not cached and no Id submitted")]
+    NoIdNorScriptSubmitted,
 
-    #[error("Script key not found")]
-    KeyNotFound,
+    #[error("Script Id not found")]
+    IdNotFound,
 }

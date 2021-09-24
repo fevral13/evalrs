@@ -14,7 +14,7 @@ pub struct EvaluationOk {
 
 pub fn evaluate(request: &Request, data: &mut Data<AppState>) -> Result<EvaluationOk, EvalrsError> {
     let cache = &mut *data.cache.lock().unwrap(); // fixme Learn how to use mutexes!
-    let script_code = get_script(&request.key, &request.script, cache)?;
+    let script_code = get_script(&request.id, &request.script, cache)?;
 
     let mut script = get_compiled_script(script_code, &request.variables)?;
 
@@ -30,14 +30,14 @@ pub fn evaluate(request: &Request, data: &mut Data<AppState>) -> Result<Evaluati
 }
 
 fn get_script<'a>(
-    key: &'a Option<String>,
+    id: &'a Option<String>,
     script: &'a Option<String>,
     cache: &'a mut dyn CacheBackend,
 ) -> Result<&'a String, EvalrsError> {
     match script {
         Some(script_code) => {
-            if let Some(key_value) = key {
-                cache.set(key_value, script_code);
+            if let Some(id_value) = id {
+                cache.set(id_value, script_code);
             }
 
             return Ok(script_code);
@@ -45,12 +45,12 @@ fn get_script<'a>(
         None => (),
     };
 
-    match key {
-        Some(key_value) => match cache.get(key_value) {
+    match id {
+        Some(id_value) => match cache.get(id_value) {
             Some(script_code) => Ok(script_code),
-            None => Err(EvalrsError::KeyNotFound),
+            None => Err(EvalrsError::IdNotFound),
         },
-        None => Err(EvalrsError::NoKeyNorScriptSubmitted),
+        None => Err(EvalrsError::NoIdNorScriptSubmitted),
     }
 }
 

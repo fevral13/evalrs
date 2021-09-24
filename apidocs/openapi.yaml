@@ -1,0 +1,43 @@
+openapi: 3.0.1
+info:
+  title: EvalRS API
+#  description: API description in **Markdown**.
+  version: 0.1.0
+servers:
+  - url: 'https://api.example.com'
+paths:
+  /:
+    get:
+      summary: This page
+      description: ""
+      responses:
+        '200':
+          description: API docs
+  /eval/:
+    post:
+      summary: Evaluate JS
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - variables
+              properties:
+                variables:
+                  type: object
+      responses:
+        200:
+          description: Calculation success 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+        401:
+          description: Script not cached
+        400:
+          description: Script evaluation failed
+
