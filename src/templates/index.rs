@@ -8,7 +8,7 @@ pub const INDEX_TEMPLATE: &str = r#"
 <body>
 <h1>Usage:</h1>
 <h2>Request</h2>
-<p>POST /</p>
+<p>POST /eval/</p>
 <pre>JSON:
 {
     "script": "&lt;js script code&gt;",
