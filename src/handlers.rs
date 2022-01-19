@@ -31,5 +31,5 @@ pub async fn evaluate_script(
 #[actix_web::get("/")]
 pub async fn index(data: Data<AppState>) -> impl Responder {
     let ctx = Context::new();
-    HttpResponse::Ok().body(&data.tera.render("index", &ctx).unwrap())
+    HttpResponse::Ok().body(data.tera.render("index", &ctx).unwrap())
 }
