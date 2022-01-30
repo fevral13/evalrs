@@ -7,5 +7,9 @@ pub struct Request {
     pub script: Option<String>,
     pub variables: Value,
     pub timeout: Option<u64>,
+}
+
+#[derive(Deserialize)]
+pub struct RequestQuery {
     pub debug: Option<bool>,
 }

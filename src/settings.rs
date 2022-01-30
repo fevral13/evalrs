@@ -21,7 +21,6 @@ pub struct Env(String);
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Settings {
     pub server: Server,
-    pub cache_backend: String,
     pub js: JSSettings,
     pub env: Env,
 }
@@ -29,7 +28,7 @@ pub struct Settings {
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
         /*
-        EVALRS_SERVER__PORT=9000
+        example env var: EVALRS_SERVER__PORT=9000
         */
         let env = std::env::var("RUN_ENV").unwrap_or_else(|_| "development".into());
 

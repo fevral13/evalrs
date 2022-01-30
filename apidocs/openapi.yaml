@@ -26,6 +26,13 @@ paths:
               properties:
                 variables:
                   type: object
+                script:
+                  type: string
+                timeout:
+                  type: number
+                id:
+                  type: string
+
       responses:
         200:
           description: Calculation success 
@@ -33,10 +40,16 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - request
+                  - result
                 properties:
                   result:
                     type: object
-        401:
+                  request:
+                    type: object
+                    nullable: true
+        417:
           description: Script not cached
         400:
           description: Script evaluation failed
