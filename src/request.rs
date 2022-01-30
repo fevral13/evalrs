@@ -7,4 +7,5 @@ pub struct Request {
     pub script: Option<String>,
     pub variables: Value,
     pub timeout: Option<u64>,
+    pub debug: Option<bool>,
 }

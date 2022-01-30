@@ -4,7 +4,9 @@ use tera::Context;
 use crate::app_state::AppState;
 use crate::errors::EvalrsError;
 use crate::evaluator::evaluate;
-use crate::response::{ResponseError, ResponseOk};
+use crate::response::{
+    ResponseError, ResponseOk, RESPONSE_CODE_EVALUATION_FAILED, RESPONSE_CODE_NO_CACHED,
+};
 
 #[actix_web::post("/eval/")]
 pub async fn evaluate_script(
@@ -17,11 +19,15 @@ pub async fn evaluate_script(
         }),
         Err(error) => match error {
             EvalrsError::IdNotFound => HttpResponse::ExpectationFailed().json(ResponseError {
-                message: &"Script id not found".to_string(),
+                code: RESPONSE_CODE_NO_CACHED,
+                message: "Script id not found in cache",
+                moreInfo: &String::from(""), // todo
                 request: &request,
             }),
             _ => HttpResponse::BadRequest().json(ResponseError {
+                code: RESPONSE_CODE_EVALUATION_FAILED,
                 message: &format!("{:?}", error),
+                moreInfo: "", // todo
                 request: &request,
             }),
         },

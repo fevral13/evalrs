@@ -1,3 +1,9 @@
+use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use log::debug;
+
+use crate::app_state::AppState;
+use crate::settings::Settings;
+
 mod app_state;
 mod cache_backend;
 mod errors;
@@ -9,15 +15,12 @@ mod response;
 mod settings;
 mod templates;
 
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
-
-use crate::app_state::AppState;
-use crate::settings::Settings;
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     let settings = Settings::new().expect("config can be loaded");
+
+    debug!("Using configuration: {}", serde_json::to_string(&settings)?);
 
     let app_state = Data::new(AppState::new(settings));
     let _app_state = app_state.clone();

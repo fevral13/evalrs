@@ -508,6 +508,7 @@ dependencies = [
  "config",
  "env_logger",
  "js-sandbox",
+ "log",
  "lru",
  "serde 1.0.133",
  "serde_json",
