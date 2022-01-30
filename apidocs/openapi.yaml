@@ -1,7 +1,6 @@
 openapi: 3.0.1
 info:
   title: EvalRS API
-#  description: API description in **Markdown**.
   version: 0.1.0
 servers:
   - url: 'https://api.example.com'
@@ -15,7 +14,20 @@ paths:
           description: API docs
   /eval/:
     post:
-      summary: Evaluate JS
+      summary: Evaluate JavaScript code with arguments
+      parameters:
+        - name: debug
+          description: |
+            Turn on/off debug mode and return request payload with result in response. 
+            Defaults to off if omitted
+          in: query
+          required: false
+          allowEmptyValue: false
+          schema:
+            type: string
+            enum:
+              - true
+              - false
       requestBody:
         content:
           application/json:
@@ -26,12 +38,24 @@ paths:
               properties:
                 variables:
                   type: object
+                  description: |
+                    Executed script context. Key values from this object are injected as global variables.
                 script:
                   type: string
+                  description: |
+                    Script code to evaluate. The last script line must contain return value. 
+                    The script is executed with JS eval() function. 
+                    See [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval) for usage details.
+                    
+                    Is optional, can be omitted if already cached.
                 timeout:
                   type: number
+                  description: |
+                    Optional script execution timeout in milliseconds.
                 id:
                   type: string
+                  description: |
+                    Cache key for the script. Is optional, if omitted, no caching is done.
 
       responses:
         200:
@@ -47,6 +71,7 @@ paths:
                   result:
                     type: object
                   request:
+                    description: Returns submitted request payload if `?debug=true`
                     type: object
                     nullable: true
         417:
