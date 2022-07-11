@@ -19,8 +19,7 @@ COPY --from=cacher /usr/local/cargo /usr/local/cargo
 RUN rustup update
 RUN cargo build --release
 
-FROM rust as runtime
-WORKDIR opt
-COPY --from=builder /app/target/release/evalrs /opt
-COPY --from=builder /app/config /opt/config
-ENTRYPOINT ["/opt/evalrs"]
+FROM gcr.io/distroless/cc as runtime
+COPY --from=builder /app/target/release/evalrs /
+COPY --from=builder /app/config /config
+ENTRYPOINT ["./evalrs"]
