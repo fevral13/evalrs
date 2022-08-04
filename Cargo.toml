@@ -1,20 +1,20 @@
 [package]
 name = "evalrs"
-version = "0.1.0"
-authors = ["Serhii Zavadskyi <sz@3yourmind.com>"]
-edition = "2018"
+version = "0.1.1"
+authors = ["Serhii Zavadskyi <fevral13@gmail.com>"]
+edition = "2021"
 
 [dependencies]
-actix-web = "4.0.0-beta.8"
-config = { version = "0.10.0", features = ["yaml"] }
+actix-web = "4.1.0"
+config = { version = "0.13.1", features = ["yaml"] }
 env_logger = "0.9.0"
-js-sandbox = { git = "https://github.com/Bromeon/js-sandbox", version = "^0.1", branch = "master" }
-lru = "0.6.6"
-serde = { version = "1.0.127", features = ["derive"] }
-serde_json = "1.0.66"
-thiserror = "1.0.26"
-log = "0.4.14"
+js-sandbox = "0.2.0-rc.0"
+lru = "0.7.7"
+serde = { version = "1.0.137", features = ["derive"] }
+serde_json = "1.0.81"
+thiserror = "1.0.31"
+log = "0.4.17"
 
 [dependencies.tera]
-version = "1.12.1"
+version = "1.16.0"
 default-features = false
