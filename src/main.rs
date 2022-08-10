@@ -14,6 +14,7 @@ mod request;
 mod response;
 mod settings;
 mod templates;
+mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
