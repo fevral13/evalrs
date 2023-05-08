@@ -25,14 +25,14 @@ jobs:
       - name: pull, build and push cacher image
         run: | 
           docker pull ghcr.io/3yourmind/cacher || true \
-          && docker build -t cacher_new --target cacher --cache-from=ghcr.io/3yourmind/cacher . \
+          && docker build -t cacher_new --target cacher --cache-from=ghcr.io/3yourmind/cacher,ghcr.io/3yourmind/planner . \
           && docker tag cacher_new ghcr.io/3yourmind/cacher \
           && docker push ghcr.io/3yourmind/cacher
 
       - name: pull, build and push builder image
         run: | 
           docker pull ghcr.io/3yourmind/builder || true \
-          && docker build -t builder_new --target builder --cache-from=ghcr.io/3yourmind/builder . \
+          && docker build -t builder_new --target builder --cache-from=ghcr.io/3yourmind/builder,ghcr.io/3yourmind/cacher,ghcr.io/3yourmind/planner . \
           && docker tag builder_new ghcr.io/3yourmind/builder \
           && docker push ghcr.io/3yourmind/builder
 
