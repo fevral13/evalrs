@@ -1,4 +1,4 @@
-FROM rust as planner
+FROM rust:1.69 as planner
 WORKDIR app
 RUN cargo install cargo-chef
 COPY . .
