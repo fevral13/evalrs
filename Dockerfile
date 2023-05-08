@@ -1,22 +1,7 @@
-FROM rust:1.69 as planner
+FROM rust:1.69 as builder
 WORKDIR app
-RUN cargo install cargo-chef --version 0.1.59
-COPY . .
-RUN cargo chef prepare  --recipe-path recipe.json
-
-FROM rust as cacher
-WORKDIR app
-RUN cargo install cargo-chef --version 0.1.59
-COPY --from=planner /app/recipe.json recipe.json
 RUN rustup update
-RUN cargo chef cook --release --recipe-path recipe.json
-
-FROM rust as builder
-WORKDIR app
 COPY . .
-COPY --from=cacher /app/target target
-COPY --from=cacher /usr/local/cargo /usr/local/cargo
-RUN rustup update
 RUN cargo build --release
 
 FROM gcr.io/distroless/cc as runtime
