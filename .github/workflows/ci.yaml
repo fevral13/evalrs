@@ -13,3 +13,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run tests
         run: cargo test --verbose
+
+      - name: login to repo
+        run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+      - name: Build docker image
+        run: docker build -t ghcr.io/3YOURMIND/evalrs:latest .
+      - name: Push docker image
+        run: docker push ghcr.io/3YOURMIND/evalrs:latest .
