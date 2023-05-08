@@ -11,9 +11,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: login to repo
-        run: echo ${{secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
+      
+      - name: login to local repo
+        run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+      - name: pull cacher image
+        run: docker pull ghcr.io/3yourmind/cacher
+        continue-on-error: true
+      - name: pull builder image
+        run: docker pull ghcr.io/3yourmind/builder
+        continue-on-error: true
+
       - name: Build docker image
         run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest .
-      - name: Push docker image
-        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest
+      - name: push cacher and builder to the repo
+        run: docker push ghcr.io/3yourmind/cacher && docker push ghcr.io/3yourmind/builder
+
+      # - name: login to repo
+      #   run: echo ${{secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
+      # - name: Push docker image
+      #   run: docker push ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest
