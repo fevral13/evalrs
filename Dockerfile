@@ -1,12 +1,12 @@
 FROM rust:1.69 as planner
 WORKDIR app
-RUN cargo install cargo-chef
+RUN cargo install cargo-chef --version 0.1.59
 COPY . .
 RUN cargo chef prepare  --recipe-path recipe.json
 
 FROM rust as cacher
 WORKDIR app
-RUN cargo install cargo-chef
+RUN cargo install cargo-chef --version 0.1.59
 COPY --from=planner /app/recipe.json recipe.json
 RUN rustup update
 RUN cargo chef cook --release --recipe-path recipe.json
