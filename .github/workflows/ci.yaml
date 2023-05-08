@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: login to repo
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login ghcr.io -u $DOCKERHUB_USERNAME --password-stdin
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u $DOCKERHUB_USERNAME --password-stdin
       - name: Build docker image
         run: docker build -t $$DOCKERHUB_USERNAME/evalrs:latest .
       - name: Push docker image
