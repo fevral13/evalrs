@@ -17,6 +17,12 @@ jobs:
       - name: pull cacher image
         run: docker pull ghcr.io/3yourmind/cacher
         continue-on-error: true
+      - name: (re)build cacher image
+        run: docker build -t cacher_new --target cacher --cache-from=ghcr.io/3yourmind/cacher .
+
+
+
+
       - name: pull builder image
         run: docker pull ghcr.io/3yourmind/builder
         continue-on-error: true
