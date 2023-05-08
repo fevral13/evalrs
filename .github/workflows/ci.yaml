@@ -36,14 +36,10 @@ jobs:
           && docker tag builder_new ghcr.io/3yourmind/builder \
           && docker push ghcr.io/3yourmind/builder
 
+      - name: Build evalrs image
+        run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest --cache-from=ghcr.io/3yourmind/builder .
 
-
-      # - name: Build docker image
-      #   run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest .
-      # - name: push cacher and builder to the repo
-      #   run: docker push ghcr.io/3yourmind/cacher && docker push ghcr.io/3yourmind/builder
-
-      # - name: login to repo
-      #   run: echo ${{secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
-      # - name: Push docker image
-      #   run: docker push ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest
+      - name: login to dockerhub repo
+        run: echo ${{secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
+      - name: Push evalrs image
+        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest
