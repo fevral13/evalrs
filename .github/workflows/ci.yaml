@@ -14,26 +14,31 @@ jobs:
       
       - name: login to local repo
         run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-      - name: pull cacher image
-        run: docker pull ghcr.io/3yourmind/cacher
-        continue-on-error: true
-      - name: (re)build cacher image
-        run: docker build -t cacher_new --target cacher --cache-from=ghcr.io/3yourmind/cacher .
-      - name: tag cacher image
-        run: docker tag cacher_new ghcr.io/3yourmind/cacher
-      - name: push cacher image
-        run: docker push ghcr.io/3yourmind/cacher
+
+      - name: pull, build and push planner image
+        run: | 
+          docker pull ghcr.io/3yourmind/planner || true \
+          && docker build -t planner_new --target planner --cache-from=ghcr.io/3yourmind/planner . \
+          && docker push ghcr.io/3yourmind/planner
+
+      - name: pull, build and push cacher image
+        run: | 
+          docker pull ghcr.io/3yourmind/cacher || true \
+          && docker build -t cacher_new --target cacher --cache-from=ghcr.io/3yourmind/cacher . \
+          && docker push ghcr.io/3yourmind/cacher
+
+      - name: pull, build and push builder image
+        run: | 
+          docker pull ghcr.io/3yourmind/builder || true \
+          && docker build -t builder_new --target builder --cache-from=ghcr.io/3yourmind/builder . \
+          && docker push ghcr.io/3yourmind/builder
 
 
 
-      - name: pull builder image
-        run: docker pull ghcr.io/3yourmind/builder
-        continue-on-error: true
-
-      - name: Build docker image
-        run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest .
-      - name: push cacher and builder to the repo
-        run: docker push ghcr.io/3yourmind/cacher && docker push ghcr.io/3yourmind/builder
+      # - name: Build docker image
+      #   run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest .
+      # - name: push cacher and builder to the repo
+      #   run: docker push ghcr.io/3yourmind/cacher && docker push ghcr.io/3yourmind/builder
 
       # - name: login to repo
       #   run: echo ${{secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
