@@ -16,4 +16,4 @@ jobs:
       - name: Build docker image
         run: docker build -t ghcr.io/3yourmind/evalrs:latest .
       - name: Push docker image
-        run: docker push ghcr.io/3yourmind/evalrs:latest .
+        run: docker push ghcr.io/3yourmind/evalrs:latest
