@@ -65,7 +65,7 @@ fn get_script_from_cache<'a>(
                 cache.set(id_value, script_code);
             }
 
-            return Ok(script_code);
+            Ok(script_code)
         }
         None => {
             debug!("Script is not submitted");
