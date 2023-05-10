@@ -26,17 +26,23 @@ async fn main() -> std::io::Result<()> {
     let app_state = Data::new(AppState::new(settings));
     let _app_state = app_state.clone();
 
-    HttpServer::new(move || {
+    let mut server = HttpServer::new(move || {
         App::new()
             .app_data(_app_state.clone())
             .wrap(Logger::default())
             .service(crate::handlers::evaluate_script)
             .service(crate::handlers::index)
-    })
-    .bind(format!(
-        "{}:{}",
-        &app_state.settings.server.host, &app_state.settings.server.port
-    ))?
-    .run()
-    .await
+    });
+
+    if let Some(workers) = app_state.settings.workers {
+        server = server.workers(workers);
+    }
+
+    server
+        .bind(format!(
+            "{}:{}",
+            &app_state.settings.server.host, &app_state.settings.server.port
+        ))?
+        .run()
+        .await
 }

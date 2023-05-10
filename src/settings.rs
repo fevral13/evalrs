@@ -20,6 +20,7 @@ pub struct Settings {
     pub server: Server,
     pub js: JSSettings,
     pub env: String,
+    pub workers: Option<usize>,
 }
 
 impl Settings {
