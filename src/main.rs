@@ -32,6 +32,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .service(crate::handlers::evaluate_script)
             .service(crate::handlers::index)
+            .service(crate::handlers::healthcheck)
     });
 
     if let Some(workers) = app_state.settings.workers {
