@@ -57,4 +57,27 @@ mod test {
             }
         );
     }
+
+    #[test]
+    async fn test_healthcheck() {
+        // create application
+        let settings = Settings::new().expect("config can be loaded");
+        let app_state = Data::new(AppState::new(settings));
+
+        let app = test::init_service(
+            App::new()
+                .app_data(app_state)
+                .service(crate::handlers::healthcheck),
+        )
+        .await;
+
+        // construct request with this payload
+        let req = test::TestRequest::get().uri("/healthcheck/").to_request();
+
+        // fire request
+        let response = test::call_service(&app, req).await;
+
+        // parse response payload
+        assert!(response.status().is_success());
+    }
 }

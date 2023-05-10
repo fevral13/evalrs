@@ -53,3 +53,8 @@ pub async fn index(data: Data<AppState>) -> impl Responder {
     let ctx = Context::new();
     HttpResponse::Ok().body(data.tera.render("index", &ctx).unwrap())
 }
+
+#[actix_web::get("/healthcheck/")]
+pub async fn healthcheck() -> impl Responder {
+    HttpResponse::Ok()
+}
