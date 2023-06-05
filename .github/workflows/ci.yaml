@@ -27,11 +27,16 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v3
-      
+      - uses: SebRollen/toml-action@v1.0.2
+        id: evalrs_version
+        with:
+          file: 'Cargo.toml'
+          field: 'package.version'
+
       - name: Build evalrs image
-        run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest -f Dockerfile-ci .
+        run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/evalrs:${{steps.evalrs_version.outputs.value}} -f Dockerfile-ci .
 
       - name: login to dockerhub repo
         run: echo ${{secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
       - name: Push evalrs image
-        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/evalrs:latest
+        run: docker push ${{secrets.DOCKERHUB_USERNAME}}/evalrs:${{steps.evalrs_version.outputs.value}}
