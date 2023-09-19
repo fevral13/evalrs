@@ -14,13 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - name: install exact rust compiler
+        run: rustup toolchain install 1.71 && rustup default 1.71
       - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        run: cargo test --verbose
 
   build_and_deploy:
     runs-on: ubuntu-latest
