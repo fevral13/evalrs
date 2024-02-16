@@ -12,6 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: install exact rust compiler
-        run: rustup toolchain install 1.71 && rustup default 1.71
+        run: rustup toolchain install 1.76 && rustup default 1.76
       - name: Run tests
         run: cargo test --verbose
