@@ -47,7 +47,9 @@ pub fn evaluate(request: &Request, data: &mut Data<AppState>) -> Result<Evaluati
         }
         Err(error) => {
             warn!("Script evaluation failure: {}", &error.to_string());
-            Err(EvalrsError::ScriptEvaluationError { source: error })
+            Err(EvalrsError::ScriptEvaluationError {
+                source: error.into(),
+            })
         }
     }
 }
@@ -109,6 +111,6 @@ fn get_script_evaluator(variables: &Value) -> Result<Script, EvalrsError> {
 
     match Script::from_string(&raw_script) {
         Ok(script) => Ok(script),
-        Err(err) => Err(EvalrsError::WrongScriptCode { source: err }),
+        Err(err) => Err(EvalrsError::WrongScriptCode { source: err.into() }),
     }
 }
