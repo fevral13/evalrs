@@ -1,4 +1,5 @@
 use lru::LruCache;
+use std::num::NonZeroUsize;
 
 use crate::cache_backend::CacheBackend;
 
@@ -11,7 +12,7 @@ pub struct LocalMemoryCacheBackend {
 impl LocalMemoryCacheBackend {
     pub fn new(cache_cap: usize) -> Self {
         LocalMemoryCacheBackend {
-            cache: Cache::new(cache_cap),
+            cache: Cache::new(NonZeroUsize::new(cache_cap).unwrap()),
         }
     }
 }
