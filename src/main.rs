@@ -1,4 +1,4 @@
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use actix_web::{middleware::Logger, web::Data, web::JsonConfig, App, HttpServer};
 use log::debug;
 
 use crate::app_state::AppState;
@@ -16,6 +16,8 @@ mod settings;
 mod templates;
 mod tests;
 
+const DEFAULT_LIMIT: usize = 10_485_760; // 10MB
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
@@ -28,6 +30,7 @@ async fn main() -> std::io::Result<()> {
 
     let mut server = HttpServer::new(move || {
         App::new()
+            .app_data(JsonConfig::default().limit(DEFAULT_LIMIT))
             .app_data(_app_state.clone())
             .wrap(Logger::default())
             .service(crate::handlers::evaluate_script)
